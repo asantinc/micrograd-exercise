@@ -21,7 +21,7 @@ def draw(root):
     for n in nodes:
         uid = str(id(n))
         # for any value in the graph, create a rectangular ('record') node for it
-        dot.node(name=uid, label="{" + f"{n.data} | <f0> " + "}", shape='record')
+        dot.node(name=uid, label="{" + f"{n.data} | {n.label} | <f0> " + "}", shape='record')
         # if this value is a result of some operation, create an op node for it
         if n._op:
             dot.node(name=uid + n._op, label=n._op)
