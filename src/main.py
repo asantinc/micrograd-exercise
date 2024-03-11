@@ -1,72 +1,26 @@
-import numpy as np
-
+from value import Value
 from visualise import draw
 
 
-class Value:
-    def __init__(self, val, children=(), op='', label='') -> None:
-        self.data = val
-        self._prev = set(children)
-        self._op = op
-        self.grad = 0
-        self.label = label
-        self._backward = lambda: None
-
-    def __repr__(self) -> str:
-        return f'Value({self.data}) {self._op}'
-
-    def __add__(self, other) -> "Value":
-        out = Value(self.data + other.data, children=(self, other), op='+')
-
-        def _backward():
-            self.grad += 1*out.grad
-            other.grad += 1*out.grad
-        self._backward = _backward
-        return out
-
-    def __mul__(self, other) -> "Value":
-        out = Value(self.data * other.data, children=(self, other), op='*')
-
-        def _backward():
-            self.grad += other.data*out.grad
-            other.grad += self.data*out.grad
-        out._backward = _backward
-        return out
-
-    def tanh(self):
-        out = Value(np.tanh(self.data), children=(self,), op='tanh')
-
-        def _backward():
-            self.grad += (1 - np.tanh(self.data)**2)*out.grad
-        out._backward = _backward
-        return out
-
-    def backward(self):
-        topo = []
-        visited = set()
-
-        def build_topo(root) -> list:
-            if root not in visited:
-                visited.add(root)
-                for child in root._prev:
-                    build_topo(child)
-                topo.append(root)
-
-        topo = build_topo()
-        for node in topo.reversed():
-            node._backward()
+def setup_function():
+    a = Value(2, label='a')
+    b = Value(3, label='b')
+    c = Value(5, label='c')
+    d = a*b
+    d.label = 'd'
+    e = d+c
+    e.label = 'e'
+    x = e.tanh()
+    x.label = 'x'
+    return x
 
 
-a = Value(2, label='a')
-b = Value(3, label='b')
-c = Value(5, label='c')
-d = a*b
-d.label = 'd'
-e = d+c
-e.label = 'e'
-x = e.tanh()
-x.label = 'x'
+def display_function(x: Value):
+    dot = draw(x)
+    dot.render('output', format='png', cleanup=True)
 
 
-dot = draw(x)
-dot.render('output', format='png', cleanup=True)
+if __name__ == '__main__':
+    x = setup_function()
+    x.backprop()
+    display_function(x)
