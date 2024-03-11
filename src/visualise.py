@@ -25,7 +25,7 @@ def draw(root):
         uid = str(id(n))
         # for any value in the graph, create a rectangular ('record') node for it
         dot.node(
-            name=uid, label="{" + f"{n.data} | {n.label} | {n.grad} | <f0> " + "}", shape='record')
+            name=uid, label="{" + f"{n.data} | {n.label} | {n.grad}" + "}", shape='record')
         # if this value is a result of some operation, create an op node for it
         if n._op:
             dot.node(name=uid + n._op, label=n._op)
@@ -37,3 +37,8 @@ def draw(root):
         dot.edge(str(id(n1)), str(id(n2)) + n2._op)
 
     return dot
+
+
+def display_function(x: 'Value'):
+    dot = draw(x)
+    dot.render('output', format='png', cleanup=True)

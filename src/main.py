@@ -1,5 +1,5 @@
 from value import Value
-from visualise import draw
+from visualise import display_function
 
 
 def setup_function():
@@ -13,11 +13,6 @@ def setup_function():
     x = e.tanh()
     x.label = 'x'
     return x
-
-
-def display_function(x: Value):
-    dot = draw(x)
-    dot.render('output', format='png', cleanup=True)
 
 
 if __name__ == '__main__':
