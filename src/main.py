@@ -30,15 +30,31 @@ class Value:
         def _backward():
             self.grad += other.data*out.grad
             other.grad += self.data*out.grad
-        self._backward = _backward
+        out._backward = _backward
         return out
 
     def tanh(self):
+        out = Value(np.tanh(self.data), children=(self,), op='tanh')
+
         def _backward():
             self.grad += (1 - np.tanh(self.data)**2)*out.grad
-        self._backward = _backward
-        out = Value(np.tanh(self.data), children=(self,), op='tanh')
+        out._backward = _backward
         return out
+
+    def backward(self):
+        topo = []
+        visited = set()
+
+        def build_topo(root) -> list:
+            if root not in visited:
+                visited.add(root)
+                for child in root._prev:
+                    build_topo(child)
+                topo.append(root)
+
+        topo = build_topo()
+        for node in topo.reversed():
+            node._backward()
 
 
 a = Value(2, label='a')
